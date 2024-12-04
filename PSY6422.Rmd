@@ -18,7 +18,7 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 ## How do units of housing supply completed in the last 23 years compare across regions of England?
 Given the current housing crisis and shortage in the UK, I became interested in how different regions of England specifically are performing with their supply of homes. I had a look into available data on gov.uk and the Office for National Statistics and found data on net additional dwellings completed, and on regional population figures. To allow comparisons across regions, I created a per 1000 people figure for a given region at a given year, given that bigger regions will have more housing.
 
-# Data
+# Data Manipulation
 ## Import
 
 ```{r library and data importing, message = FALSE}

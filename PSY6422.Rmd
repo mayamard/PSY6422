@@ -3,12 +3,13 @@ title: "PSY6422 Final Project"
 author: "ID 240189002"
 date: "`r Sys.Date()`"
 output:
-  html_document
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r markdown setup, include = FALSE}
 
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width=12, fig.height=8)
 # Prevents "Error in contrib.url():! trying to use CRAN without setting a mirror" message
 options(repos = c(CRAN = "https://cloud.r-project.org"))
 
@@ -16,12 +17,16 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 
 # Topic & Research Question
 ## How do units of housing supply completed in the last 23 years compare across regions of England?
-Given the current housing crisis and shortage in the UK, I became interested in how different regions of England specifically are performing with their supply of homes. I had a look into available data on gov.uk and the Office for National Statistics and found data on net additional dwellings completed, and on regional population figures. To allow comparisons across regions, I created a per 1000 people figure for a given region at a given year, given that bigger regions will have more housing.
+Given the current housing crisis and housing shortage in the UK, I became interested in how different regions of England particularly are performing with their supply of new homes. I had a look into figures on gov.uk and found data on net additional dwellings completed, defined as "the absolute change in stock between one year and the next, including losses and gains from new builds, conversions, changes of use (for example a residential house to an office) and demolitions".
+
+Given that bigger regions would have more housing, I found data on the population of regions by year from the Office for National Statistics to created a per 1000 people figure for a given region at a given year. This would allow truer comparisons of regions.
 
 # Data Manipulation
 ## Import
 
-```{r library and data importing, message = FALSE}
+<details>
+
+```{r library and data importing}
 
 #readODS package needed to read the Net Additional Dwellings .ods dataset
 if(!require(readODS)) install.packages("readODS")
@@ -54,14 +59,15 @@ head(data_pop)
 #Data needs to match by Year and Region, therefore need to ensure relevant wrangling is completed...
 
 ```
+</details>
 
 ## Wrangle: Net Additional Dwellings data
 
-```{r wrangle net dwellings data, include = FALSE, message = FALSE}
+```{r wrangle net dwellings data}
 # Wrangle: Net Additional Dwellings data
 
 #We are looking at regions of England, from 2011 to 2023 (as no pre-2011 population data was available unfortunately)
-View(data_dwell)
+head(data_dwell)
 #Looks like we need to remove some blank columns and rows, remove the England column, rename Year column data to just numbers, remove pre-2011 data, and convert the regions to long
 
 #remove 1st 2 rows as they are irrelevant 
@@ -72,7 +78,7 @@ colnames(data_dwell) <- data_dwell[1, ]
 data_dwell <- data_dwell[-1, ]
 
 #Check if that looks right
-View(data_dwell) 
+head(data_dwell) 
 
 #Delete "England" column as we're just seeing regional differences
 data_dwell <- data_dwell %>%
@@ -140,7 +146,7 @@ print(plot_dwell)
 ```{r wrangle population data, include = FALSE, message = FALSE}
 
 #Check imported data
-View(data_pop)
+head(data_pop)
 #1st column, and first 6 rows can go. will also need to rename Year headings to only numeric, and convert to long
 
 #remove first 6 rows, no data
@@ -263,7 +269,7 @@ data_final$Population <- as.numeric(data_final$Population)
 data_final$Dwell_By_Pop <- ((data_final$`Net_Additional_Dwellings` / data_final$`Population`)*1000)
 
 #see the new column
-View(data_final)
+head(data_final)
 
 ```
 
@@ -310,11 +316,14 @@ plot_final
 
 
 # Conclusions
+
+My initial thoughts: I was quite surprised to see how few homes were being built - I'd expected more of a noticeable increase as years and populations increased. There is the obvious dip in 2020 and lag to 2021 due to halting construction activity, and it seems we're still in a sort of housing slog.
+
 ## Limitations & Future ideas
 
-Although my project offers an interesting insight into housing supply differences across English regions, it of course overlooks the contextual and political factors involved in housing supply. Economic conditions (e.g., unemployment, income levels), government policies (e.g., housing subsidies, planning permissions/ regulations) and details regarding types of housing or population density are not considered.
+Although my project offers an interesting insight into new housing supply differences across English regions, it of course overlooks the contextual and political factors involved in housing supply. Economic conditions (e.g., unemployment, income levels), government policies (e.g., housing subsidies, planning permissions/ regulations) and details regarding types of housing or population density are not considered. Future projects may wish to investigate adjusting to these factors for a more nuanced insight.
 
-My initial idea for this project was to use data on affordable units of housing available regionally and find proportions of net housing that are affordable, to see where in England there are the most affordable options for housing. This fell short when I realised the affordable housing data is only available as a gross figure (i.e. not taking into account any losses of affordable housing), therefore any data presented would be misleading. This would be a really interesting future idea given the net data is published. There is some "Official Statistics in Development" only on affordable housing for rent, if interested (see references).
+My initial idea for this project was to use data on affordable units of housing available regionally and find proportions of net housing that are affordable, to see where in England there are the most affordable options (both ownership and rent) for housing. This fell short when I realised the affordable housing data is only available as a gross figure (i.e. not taking into account any losses of affordable housing), therefore any data presented would be misleading. This would be a really interesting future idea given the net data is published. There is some "Official Statistics in Development" data only on affordable housing for rent, if interested (see references).
 
 # References
 
@@ -322,10 +331,10 @@ All data was extracted from the Office for National Statistics and from gov.uk.
 
 <b>Net Additional Dwellings data:</b> Table 118: annual net additional dwellings and components, England and the regions (ODS, 54KB) -<br> <a href="https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables"target="_blank">https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables</a> (Updated: 28 November 2024)
 
-Involvement from:
+<i>Involvement from:
 Ministry of Housing, Communities and Local Government, 
 Ministry of Housing, Communities & Local Government (2018 to 2021),
-Department for Levelling Up, Housing and Communities
+Department for Levelling Up, Housing and Communities</i>
 
 <b>Population estimates data:</b> Mid-2023: 2023 local authority boundaries edition of this dataset edition of this dataset (xlsx, 813.1KB) -<br> <a href="https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales">https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales</a> (Released: 15 July 2024)
 

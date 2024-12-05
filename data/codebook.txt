@@ -1,0 +1,15 @@
+Codebook
+
+Data sources: 
+
+Net Additional Dwellings data = https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables
+> Table 118: annual net additional dwellings and components, England and the regions (ODS, 54KB | Updated: 28 November 2024)
+> Sheet used: LT118_(unrounded). Unrounded figures used in this project for more accurate scaling when creating the "per 1000 people" figure
+> Background: The housing supply: net additional dwellings statistics, also known as ‘net additions’, measure the absolute change in stock between one year and the next, including losses and gains from new builds, conversions, changes of use (for example a residential house to an office) and demolitions.
+> Data sources: The sources of the net additions data are the Housing Flows Reconciliation (HFR), the Greater London Authority and Regional Assembly joint returns. From 2000-01 to 2003-04, all local authorities submitted data to CLG through the Housing Flows Reconcilation (HFR) form. Between 2004-05 and 2008-09 CLG worked jointly with Regional Planning bodies in the south and midlands on joint data returns in an attempt to ensure consistency between the net housing supply figures reported in regional Annual Monitoring Reports (AMRs) and those published by central government.  Following the abolition of the Regional Planning Bodies in 2010, Local authorities in all regions except London have returned to submitting data via the HFR from 2009-10.
+
+Population estimates data = https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales
+> Mid-2023: 2023 local authority boundaries edition of this dataset edition of this dataset (xlsx, 813.1KB | Released: 15 July 2024)
+> Sheet used: MYE3: Components of population change for local authorities in England and Wales, mid-2023
+> Background: Data used was based on mid-year estimates (i.e. mid-2022 population estimate was used to represent 2022 data).
+> Data supplier: Population Estimates Unit, Population Statistics Division, Office for National Statistics

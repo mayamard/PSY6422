@@ -17,7 +17,7 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 # Research Question
 ## How Does Housing Supply Compare Across Regions of England When Adjusting for Population?
 
-In light of the ongoing housing crisis and shortage in the UK, I became interested in how different regions of England are performing with their supply of new homes. Using data from gov.uk, I analyzed year-on-year changes in "net additional dwellings". This metric captures the absolute change in housing stock, factoring in gains and losses from new builds, conversions, changes of use (e.g., residential to office), and demolitions.
+In light of the ongoing housing crisis and shortage in the UK, I became interested in how different regions of England are performing with their supply of new homes. Using data from gov.uk, I found data on year-on-year changes in "net additional dwellings". This metric captures the absolute change in housing stock, factoring in gains and losses from new builds, conversions, changes of use (e.g., residential to office), and demolitions.
 
 I also found mid-year population estimates for regions from the Office for National Statistics (ONS) to create a "per 1000 people figure". This would allow easier comparisons across regions rather than having the absolute figures of housing, given that highly populated regions would have more housing completed.
 
@@ -35,8 +35,8 @@ The code below is the setup and the required libraries. Renv was used for packag
 # renv package to ensure the packages used are preserved for cloning
 if(!require('renv')) install.packages('renv')
 library(renv)
-# Restores the environment from renv.lock file
-renv::restore()
+renv::restore()# Restores the environment from renv.lock file
+
 # here determines the project root directory automatically
 # constructs file paths relative to that root, not current working directory
 library(here)
@@ -152,7 +152,7 @@ plot_homes <- ggplot(data = data_homes, mapping = aes(
          y = "New Homes") +
     scale_x_continuous(breaks = seq(2011, 2023)) #Specify X scale with all years
 # View the plot
-print(plot_homes)
+plot_homes
 # Noticeable dip in 2019-2020 is interesting to see
 ```
 
@@ -229,7 +229,7 @@ plot_pop <- ggplot(data_pop, aes(
   scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "m")) 
 
 # View plot
-print(plot_pop)
+plot_pop
 ```
 
 ```{r saving population plot, include=FALSE}
@@ -306,7 +306,8 @@ Plotting it all: ggplot and plotly will be used for creating the visualisation. 
 
 ```{r custom palette}
 # Palette made using ONS guidelines
-# Reverse order used: allows better differentiation of overlapping lines
+# Reversed order: allowed better differentiation of overlapping lines
+# Also found it useful to have London as a very distinct shade
 palette <- c(
 "East Midlands" = "#22d0b6", #"Mint green"
 "East of England" = "#746cb1", #Lavender purple"    
@@ -319,43 +320,47 @@ palette <- c(
 "Yorkshire and The Humber" = "#206095") #"Ocean blue"
 ```
 
-
-```{r final plot static, warning=FALSE}
+```{r}
 # Plot it all: initially plotting as a static ggplot
 plot_final_static <- ggplot(data_final, aes(
-  x = Year, y = Homes_By_Pop, group = `Region`, colour = `Region`, 
-  text = paste( #Custom hover text for interactivity and html formatting added below
+  x = Year, y = Homes_By_Pop, 
+  group = `Region`, colour = `Region`, # Lines and colors distinct by Region
+  text = paste( # Custom hover text for interactivity and HTML formatting added below
     "<b><i>", Region, "</i></b>", "-", "<b><i>", Year, "</i></b>", 
-    "<br>Population:", format(Population, big.mark = ","),#bigmark for chunking large numbers and separating by commas
+    "<br>Population:", format(Population, big.mark = ","), # Bigmark for chunking large numbers
     "<br>Completed Builds:", format(New_Homes, big.mark = ","), 
-    "<br><b>Homes completed per 1000 people:</b>", round(Homes_By_Pop, 2)#2dp
+    "<br><b>Homes completed per 1000 people:</b>", round(Homes_By_Pop, 2) # 2 decimal places
   ))) +
-  geom_line(size = 1) +
-  geom_point(size = 2) +
+  geom_line(size = 1) + # Line plot
+  geom_point(size = 2) + # Combined with points for data
   labs(title = "New Homes Completed per 1000 people by English Region, 2011-2023",
        x = "Year",
        y = "New Homes per 1000 people") +
   scale_x_continuous(
-    breaks = seq(2011, 2023)) +
+    breaks = seq(2011, 2023) # Ensures every year is visible on the X-axis
+  ) + 
   scale_y_continuous(
-    breaks = seq(1, 5.5, by = 0.5), #Every .5 is shown on the Y axis
-    #Starts at 1 and ends at 5.5: before the smallest value and beyond largest
-    limits = c(1, 5.5)) +
-  scale_color_manual(values = palette) +
- theme(
-   panel.grid.major.y = element_line(color = "gray", size = 0.5),
+    breaks = seq(1, 5.5, by = 0.5), # Every 0.5 is shown on the Y-axis
+    limits = c(1, 5.5) # Starts at 1 and ends at 5.5, covering the range of the data
+  ) +
+  scale_color_manual(values = palette) + # Apply the custom colour palette
+  theme(
+    # Gridlines along the Y-axis only below:
+    panel.grid.major.y = element_line(color = "gray", size = 0.5),
     title = element_text(face = "bold", size = 14),
     axis.title.x = element_text(face = "italic", size = 12),
     axis.title.y = element_text(face = "italic", size = 12),
     axis.text = element_text(size = 10),
-    #White panel and plot background coded below
+    # White panel and plot background coded below
     panel.background = element_rect(fill = "white"),
     plot.background = element_rect(fill = "white"),
-    axis.ticks = element_line(color = "black")#Black ticks
-        )
-# Viewing the static, non interactive plot...
+    axis.ticks = element_line(color = "black") # Black ticks
+  )
+
+# Viewing the static, non-interactive plot
 plot_final_static
 ```
+
 
 
 ```{r final plot interactive}

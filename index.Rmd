@@ -53,6 +53,8 @@ library(ggplot2)
 library(plotly)
 # scales allows better axes formatting: only using for the population plot
 library(scales)
+# allows for better data handling
+library(tools) 
 # webshot is needed for saving my final interactive plot as a static pdf
 library(webshot2)
 ```
@@ -112,7 +114,7 @@ data_homes <- pivot_longer(data_homes,
              cols = -Year, #all columns except Year as it's already long
              names_to = "Region",
              values_to = "New_Homes")
-# Check whether we have missing data in the columns we need
+# Check whether we have missing data in the columns we need;
 # Function created to give us a statement rather than a list of output
 check_missing_vals <- function(data) {
   if (any(is.na(data))) {
@@ -195,7 +197,6 @@ data_pop <- data_pop %>%
 # Remove 'Mid-' from the Year column
 data_pop$Year <- gsub("Mid-", "", data_pop$Year)
 # Change from UPPERCASE to LikeThis for consistency
-library(tools)
 data_pop$Region <- toTitleCase(tolower(data_pop$Region))
 # Missing data check
 check_missing_vals(data_pop)
@@ -432,24 +433,18 @@ My initial idea for this project was to use data on affordable units of housing 
 
 ## Reflection
 
-I'm quite proud of my plot! It is a relatively simple plot but I learned a lot, and felt a sense of accomplishment when my ideas worked out. I really enjoyed adding in the small details with html and seeing it all come together.
+I'm quite proud of my plot! It is a relatively simple plot but I learned a lot, and felt a sense of accomplishment when my ideas worked out. I really enjoyed adding in the small details with html too, then seeing it all come together. I think the packages and approach chosen make sense for the question I wanted to look into.
 
 As a personal project and to build on my interests in interactive plots, I'd like to develop a Shiny dashboard relating to housing, specifically into affordability across England. It's all good research into the question: will I ever own my own house?
 
 # References
 
-Net Additional Dwellings data: gov.uk | "Table 118: annual net additional dwellings and components, England and the regions" (ODS,54KB)   
-> https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables
+Net Additional Dwellings data: gov.uk | "Table 118: annual net additional dwellings and components, England and the regions" (ODS,54KB) https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables
 
-gov.uk collection on net dwelling supply & confirmation of this being financial year data: 
-> https://www.gov.uk/government/collections/net-supply-of-housing
+gov.uk collection on net dwelling supply & confirmation of this being financial year data: https://www.gov.uk/government/collections/net-supply-of-housing
 
-Population estimates data: ONS | "Mid-2023: 2023 local authority boundaries edition of this dataset edition of this dataset" (xlsx, 813.1KB) 
-> https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales
+Population estimates data: ONS | "Mid-2023: 2023 local authority boundaries edition of this dataset edition of this dataset" (xlsx, 813.1KB) https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales
 
-Colour palette hex codes & guidance from ONS: 
-> https://service-manual.ons.gov.uk/data-visualisation/colours/using-colours-in-charts#standard-category-colour-palette
+Colour palette hex codes & guidance from ONS: https://service-manual.ons.gov.uk/data-visualisation/colours/using-colours-in-charts#standard-category-colour-palette
 
-Unused data - Links for anyone interested in affordable data sets mentioned:
-> https://www.gov.uk/government/statistical-data-sets/live-tables-on-affordable-housing-supply
-> https://assets.publishing.service.gov.uk/media/65c0b5dec43191000d1a451f/Net_Affordable_Housing_for_Rent.ods/preview
+Unused data - Links for anyone interested in affordable data sets mentioned: https://www.gov.uk/government/statistical-data-sets/live-tables-on-affordable-housing-supply / https://assets.publishing.service.gov.uk/media/65c0b5dec43191000d1a451f/Net_Affordable_Housing_for_Rent.ods/preview

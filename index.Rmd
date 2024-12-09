@@ -380,7 +380,6 @@ plot_final <- plot_final %>% layout(
     yanchor = 'top',
     y = 0.95), #to avoid title being too close to the top chunk
   #Adding crosshairs for x and y axes: easier to pinpoint data of interest
-  #Will present when interacting
   xaxis = list(
     showspikes = TRUE, 
     spikesnap = "cursor", #based on cursor location: follows your movement

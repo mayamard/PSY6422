@@ -1,142 +1,145 @@
 ---
 title: "PSY6422 Final Project"
 author: '240189002'
-date: "`r Sys.Date()`"
 output:
-  html_document: default
+  html_document:
+    df_print: paged
   pdf_document: default
 ---
 
-```{r markdown setup, include = FALSE}
-
-knitr::opts_chunk$set(echo = TRUE)
+```{r markdown setup, include=FALSE}
+# this makes sure any plots rendered by R Markdown are of the same dimensions
+knitr::opts_chunk$set(fig.width = 10, fig.height = 5)
 # Prevents "Error in contrib.url():! trying to use CRAN without setting a mirror" message
 options(repos = c(CRAN = "https://cloud.r-project.org"))
-
 ```
 
 # Research Question
-## How do units of housing supply completed in the last 12 years compare across regions of England when adjusting by regional populations?
-Given the current housing crisis and shortage in the UK, I became interested in how different regions of England particularly are performing with their supply of new homes. I had a look into figures on gov.uk and found data on net additional dwellings completed, defined as "the absolute change in stock between one year and the next, including losses and gains from new builds, conversions, changes of use (for example a residential house to an office) and demolitions".
+## How Does Housing Supply Compare Across Regions of England When Adjusting for Population?
 
-Given that bigger regions would have higher new housing figures, I found data on the population of regions by year from the Office for National Statistics (ONS) to create a per 1000 people figure for a given region at a given year. This would allow easier comparisons across regions.
+In light of the ongoing housing crisis and shortage in the UK, I became interested in how different regions of England are performing with their supply of new homes. Using data from gov.uk, I analyzed year-on-year changes in "net additional dwellings". This metric captures the absolute change in housing stock, factoring in gains and losses from new builds, conversions, changes of use (e.g., residential to office), and demolitions.
 
-I decided on a line plot with "Year" on the X axis, and "New Homes completed per 1000", with 9 lines to represent each of the 9 English regions, displaying the trends over time. I also wanted an interactive element where users could compare, isolate, and zoom into areas and years of interest.
+I also found mid-year population estimates for regions from the Office for National Statistics (ONS) to create a "per 1000 people figure". This would allow easier comparisons across regions rather than having the absolute figures of housing, given that highly populated regions would have more housing completed.
+
+As the final visualisation, I decided on a line plot with "Year" on the X axis, and "New Homes completed per 1000 people" on the Y axis, with 9 lines to represent each of the 9 English regions to display the trends over time. A key aspect of the final visualisation is the interactive element: I wanted users to compare, isolate, and zoom into areas and years of interest. 
+
+Please see the References section at the end of the document/webpage for links to data sources.
 
 # Data Preparation
 ## Setting up & loading packages
 
-The code below is the setup with the required libraries. Renv was used for package management, with package versions used listed in /renv.lock in the repository.
+The code below is the setup and the required libraries. Renv was used for package management, with package versions used listed in /renv.lock in the repository.
 
-```{r setup & library, message = FALSE, warning = FALSE, quiet = TRUE}
-
-# Package version management: using "renv" package to ensure the packages used in this project are preserved if/when cloning
+```{r setup & library, message=FALSE, results='hide'}
+# Package version management:
+# renv package to ensure the packages used are preserved for cloning
 if(!require('renv')) install.packages('renv')
 library(renv)
 # Restores the environment from renv.lock file
 renv::restore()
-# My library:
-# here determines the project root directory automatically and constructs file paths relative to that root, not the current working directory
+# here determines the project root directory automatically
+# constructs file paths relative to that root, not current working directory
 library(here)
 # readODS package needed to read the Net Additional Dwellings .ods dataset
 library(readODS)
 # readxl package needed to read the Regional Population .xlsx dataset
 library(readxl)
-# Library required for data wrangling: mainly using tidyr and dplyr from tidyverse
+# Library needed for data wrangling: mainly using tidyr and dplyr from tidyverse
 library(tidyverse)
 # ggplot2 allows for plotting with ggplot
 library(ggplot2)
-# plotly allows interactivity from ggplot plots. I like the use of plot zooming and custom hover text which is why plotly was used
+# plotly allows interactivity from ggplot plots
+# Chosen specifically for use of plot zooming and custom hover text
 library(plotly)
-
+# scales allows better axes formatting: only using for the population plot
+library(scales)
+# webshot is needed for saving my final interactive plot as a static pdf
+library(webshot2)
 ```
 
 ## Importing data
-We will be merging these data sets so we get a figure of the number of new housing units relative to that region's population for a given year, by 1000 people, to allow regional comparisons. This means columns that need to be merged and therefore need to match by names are Region and Year.
 
-I had a look at the data being used in Excel and as a tibble using View() after importing, so already have an idea of what needs to be edited.
+I will be merging these data sets for a figure of the number of new housing units relative to that region's population for a given year, by 1000 people. This means columns that need to be merged and therefore need to match are "Region" and "Year".
 
-```{r importing, message = FALSE, warning = FALSE}
-
-# here constructing file paths relative to the project root
-# If downloading the data from sources, please ensure relevant data folder and file names below match
+```{r importing, message=FALSE}
+# Ensure "data" folder is made and file names match below if downloading sources
 file_path_homes <- here("data", "raw_netadditionaldwellings.ods")
 file_path_pop <- here("data", "raw_population.xlsx")
+# Read data from the files:
+data_homes <- read_ods(file_path_homes, sheet = 5) 
+# Unrounded sheet used for more accurate figures
+data_pop <- read_xlsx(file_path_pop, sheet = 11) 
+# Mid-year population estimates 2011-2023
 
-# Read data from the files
-data_homes <- read_ods(file_path_homes, sheet = 5) #unrounded sheet for more accurate figures
-data_pop <- read_xlsx(file_path_pop, sheet = 11) #mid-year population estimates 2011-2023
-
-# See new imported data sets are correct and review what edits need to be made.
-# Best to View in R initially
-# Data needs to match by Year and Region, therefore need to ensure relevant wrangling is completed...
-
+# See new imported data sets are correct and review what edits need to be made 
+# Best to View() in R Studio initially; using head() in R Markdown for publishing
 ```
 
-## Wrangle (Part 1/3): Net Additional Dwellings data
+## Wrangle (1/3): Net Additional Dwellings
 
-```{r wrangle net additional dwellings data}
+I started with cleaning up the Net Additional Dwellings data. This will be referred to as "New Homes" for clarity. Note that this data is on financial year additions to housing stock, so data from 2011-2012 will be representative of 2011 data and so on, for the purposes of the project. Population estimates data only held information from 2011 to 2023, so any New Homes data pre-2011 was not used in the project.
 
-# We are looking for regions of England, from 2011 to 2023 as no pre-2011 population data was available unfortunately
-# As mentioned, ideally you'd View(data_homes) in R at this stage
-# We need to remove blank columns and rows, remove the England column, rename Year column data to just numbers, remove pre-2011 data, and convert the regions to long
+```{r view messy housing data}
+# Quick view of our imported data
+head(data_homes)
+# See the structure of the data: what data types need to be converted
+str(data_homes)
+```
 
-#remove 1st 2 rows as they are irrelevant 
-data_homes <- data_homes[-1:-2, ]
-
-#make first row the headings for columns, then delete first row
+```{r wrangle 1/3}
+# Remove 1st 2 rows as they are irrelevant 
+data_homes <- data_homes[-c(1:2), ]
+# Make first row the headings for columns, then delete the first row
 colnames(data_homes) <- data_homes[1, ]
 data_homes <- data_homes[-1, ]
-
-# Check if that looks right
-head(data_homes) 
-
-# Delete "England" column as we're just seeing regional differences
+# Delete "England" column as we're just seeing regions
 data_homes <- data_homes %>%
   select(-"England")
-
 # Filtering for only Net data
 data_homes <- data_homes %>% filter(
   str_starts(`Components of net housing supply`, "Net additions")
   )
-
 # Can now delete this "Components of net housing supply" column as have used filters
 data_homes <- data_homes %>%
   select(-`Components of net housing supply`)
-
 # Rename Year as first 4 digits: cannot convert to numeric otherwise
 data_homes$Year <- str_sub(data_homes$Year, 1, 4)
-
-# Filter to remove pre-2011 data to match the data set with the population data we have
+# Filter to remove pre-2011 data to match with the population data we have
 data_homes <- data_homes %>%
   filter(Year >= 2011)
-
 # Make long
 data_homes <- pivot_longer(data_homes, 
              cols = -Year, #all columns except Year as it's already long
              names_to = "Region",
              values_to = "New_Homes")
-
-# Quick check whether we have missing data
-is.na(data_homes)
-#All values come back False, meaning no missing values
-
-# Convert to numeric to allow plotting
+# Check whether we have missing data in the columns we need
+# Function created to give us a statement rather than a list of output
+check_missing_vals <- function(data) {
+  if (any(is.na(data))) {
+    message("There are missing values (NA) in the data")
+  } else {
+    message("No missing values in the data")
+  }
+}
+check_missing_vals(data_homes)
+# Looks fine: can convert to numeric to allow plotting
 data_homes <- data_homes %>%
   mutate(across(c(Year, New_Homes), as.numeric))
-
-# How does it look?
-print(data_homes)
-# Looks good!
-
 ```
 
-## Plot: Net Additional Dwellings data
+```{r view clean housing data}
+# How does it look?
+head(data_homes)
+str(data_homes)
+# Looks good! Tidy, relevant, and needed columns are numeric
+# 117 x 3 also makes sense: 9 regions*13 years of data
+# Let's plot
+```
 
-```{r plot Net Additional Dwellings}
+## Plot (1/3): Net Additional Dwellings
 
-#Quick view of our data
-
+```{r plot 1/3, fig.align='center'}
+# Quick visual of our data: does this look correct?
 plot_homes <- ggplot(data = data_homes, mapping = aes(
   x = Year, y = New_Homes, 
   group = Region, colour = Region)) + 
@@ -145,236 +148,308 @@ plot_homes <- ggplot(data = data_homes, mapping = aes(
   labs(title = "New Homes added by Region, 2011-2023", 
          x = "Year", 
          y = "New Homes") +
-    scale_x_continuous(breaks = seq(2011, 2023))
-
+    scale_x_continuous(breaks = seq(2011, 2023)) #Specify X scale with all years
+# View the plot
 print(plot_homes)
-ggsave(plot = plot_homes, "plots/plot_newhomes.png")
-
-
+# Noticeable dip in 2019-2020 is interesting to see
 ```
 
-## Wrangle (Part 2/3): Population data
+```{r saving homes plot, include=FALSE}
+# Saving to /plots folder
+ggsave("plots/nethomes.png", plot = plot_homes, 
+       width = 10, height = 5, units = "in", dpi = 300)
+```
 
-```{r wrangle population data}
+## Wrangle (2/3): Population
 
-#Check imported data
+Here I'm wrangling the population data. Note that these are mid-year estimates. For the purposes of the project, the mid-figure represents the population for that year ("Mid-2011" will represent "2011", etc).
+
+```{r view messy population data}
+# View imported messy data
 head(data_pop)
-#1st column, and first 6 rows can go. Will also need to rename Year headings to only numeric, and convert to long
+str(data_pop)
+```
 
-#remove first 6 rows, no data
+```{r wrangle 2/3}
+# Remove first 6 rows, no data
 data_pop <- data_pop %>% slice(-1:-6)
-
-#remove first column, no data
+# Remove first column, no data
 data_pop <- data_pop[ ,-1]
-
-#rename headers as the first row, then remove first row
+# Rename headers as the first row, then remove first row
 colnames(data_pop) <- data_pop[1, ]
 data_pop <- data_pop[-1, ]
-
-#rename just 1st col to Region to match New Homes data
+# Rename just 1st col to Region to match New Homes data
 colnames(data_pop)[colnames(data_pop) == "Name"] <- "Region"
-
-#view only regional data
+# Filter to view only regional data
 data_pop <- data_pop %>%
   filter(grepl("Region", Geography))
-
-#remove Geography column as now not needed
+# Remove Geography column as now not needed
 data_pop <- data_pop[ ,-2]
-
-#convert to long
+# Convert to long
 data_pop <- data_pop %>%
   pivot_longer(
     cols = starts_with("Mid"),  # Select the year columns (2011, 2012, 2013)
     names_to = "Year",         # The new column for year
     values_to = "Population"   # The new column for population values
   )
-
 # Remove 'Mid-' from the Year column
 data_pop$Year <- gsub("Mid-", "", data_pop$Year)
-
-#Change from UPPERCASE to LikeThis
+# Change from UPPERCASE to LikeThis for consistency
 library(tools)
 data_pop$Region <- toTitleCase(tolower(data_pop$Region))
-
-#Quick check whether we have missing data
-is.na(data_pop)
-#All values come back FALSE, meaning no missing values
-
-#make numeric for plot
+# Missing data check
+check_missing_vals(data_pop)
+# None
+# Make relevant columns numeric for plot
 data_pop <- data_pop %>%
   mutate(across(c(Year, Population), as.numeric))
-
-print(data_pop)
-
 ```
 
-## Plot: Population
+```{r view clean population data}
+# View cleaned data
+head(data_pop)
+str(data_pop)
+# Nice! Let's plot this
+```
 
-```{r population plot}
+## Plot (2/3): Population
 
-plot_pop <- ggplot(data_pop, aes(x = Year, y = Population, group = Region, colour = Region)) +
+```{r plot 2/3, fig.align='center'}
+plot_pop <- ggplot(data_pop, aes(
+  x = Year, y = Population, 
+  group = Region, colour = Region)) +
   geom_line() +
   geom_point() +
   labs(title = "Population by Region, 2011-2023", 
        x = "Year", 
-       y = "Population") +
-  scale_x_continuous(breaks = seq(2011, 2023))
+       y = "Population (million)") +
+  scale_x_continuous(breaks = seq(2011, 2023)) +
+  #Default logged values showed originally: scaled by million with below code
+  scale_y_continuous(labels = label_number(scale = 1e-6, suffix = "m")) 
 
+# View plot
 print(plot_pop)
-ggsave(plot = plot_pop, "plots/plot_population.png")
 ```
 
-## Wrangle (Part 3/3): Merging datasets
+```{r saving population plot, include=FALSE}
+# Saving to /plots folder
+ggsave("plots/population.png", plot = plot_pop, 
+       width = 10, height = 5, units = "in", dpi = 300)
+```
 
-```{r wrangling both datasets and merging, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
+## Wrangle (3/3): Merging datasets
 
-#Will want to combine the datasets to form a new data frame so Region and Year remain as columns, and New Homes and Population are new
-#Names of Regions and Years must be the same for all data to merge correctly, lets make sure the names are matching
+Combining the now cleaned data to form a new data frame. "Region" and "Year" will remain as columns, and "New Homes" and "Population" are to be added as new columns.
+Names of Regions and Years must be the same for all data to merge correctly, let's make sure:
 
-#Check if we have anything earlier than 2011
-any(data_homes$Year < 2011)
-#False, great!
-any(data_pop$Year < 2011)
-#False, great!
+```{r wrangling both datasets, check Year col}
+unique(data_homes$Year)
+unique(data_pop$Year)
+# Great, years matching based off previous filtering
+```
 
+```{r wrangling both datasets, check Region col}
 unique(data_homes$Region)
 unique(data_pop$Region)
-#Looks like there are some differences in Region names with East and Yorkshire... 
-#I prefer "East of England" and "Yorkshire and The Humber" as names from the Dwellings df, so will rename these in the Population df
-#rename "East" to just "East of England", and "Yorkshire and the Humber" to "... The Humber"
+# Looks like there are some differences in Region names with East and Yorkshire 
+# I prefer "East of England" and "Yorkshire and The Humber" from the New Homes data
+```
+
+```{r wrangling both datasets, name change}
+# Changing data_pop names:
+# Rename "East" to just "East of England"
+# Rename "Yorkshire and the Humber" to "... The Humber"
 data_pop <- data_pop %>%
   mutate(
-    `Region` = recode(`Region`, "East" = "East of England"),
-    `Region` = recode(`Region`, "Yorkshire and the Humber" = "Yorkshire and The Humber")
+    `Region` = recode(
+      `Region`, "East" = "East of England"),
+    `Region` = recode(
+      `Region`, "Yorkshire and the Humber" = "Yorkshire and The Humber")
   )
+# Can now create a new df where regional new homes are adjusted by population
+```
 
-#We can now create a new data frame where new homes are adjusted by population for each region
 
-#merging with Region and Year labels remaining
-data_final <- merge(data_homes, data_pop, by.x = c("Region", "Year"), by.y = c("Region", "Year"))
-
+```{r merging}
+# Merging with Region and Year labels remaining
+data_final <- merge(data_homes, data_pop, 
+                    by.x = c("Region", "Year"), 
+                    by.y = c("Region", "Year"))
 #Check all 9 regions are here
 unique(data_final$Region)
-#yep
-#Check all years we're interested in are accounted for
+# Yep
+# Check all years we're interested in are accounted for
 unique(data_final$Year)
-#Yep
-#ANy data lost in the merge, resulting in NA values?
-is.na(data_final)
-#All FALSE, looks good to me!
-
-#view the data
-print(data_final)
-
-#make new columns numeric for plotting
+# Yep
+# Any data lost in the merge, resulting in NA values?
+check_missing_vals(data_final)
+# No missing!
+# Make new columns numeric for plotting
 data_final <- data_final %>%
   mutate(across(c(Year, New_Homes, Population), as.numeric))
-
-# Calculate the Population/Houses*1000 ratio, create new column for figures
-data_final$Homes_By_Pop <- ((data_final$`New_Homes` / data_final$`Population`)*1000)
-
-#see the new column
-head(data_final)
-
+# Calculate the Homes/Population*1000 ratio, create new "Homes_By_Pop" column for figures
+data_final$Homes_By_Pop <- ((
+  data_final$`New_Homes` / data_final$`Population`)*1000)
 ```
 
-```{r}
-
+```{r view clean final data}
+# Let's see the final dataset used for plotting and the new column
 head(data_final)
-
+tail(data_final)
+str(data_final)
 ```
 
-# Final Plot for Assessment
+## Plot (3/3): Merged data
 
-```{r final plot}
+Plotting it all: ggplot and plotly will be used for creating the visualisation. I took inspiration from ONS colour palette guidance: it was hard to find 9 distinct colours as pre-made packages that were also visually pleasing, so ONS-recommended hex codes were manually added in.
 
-# Plot it all!
-plot_final <- ggplot(data_final, aes(
-  x = Year, 
-  y = Homes_By_Pop, 
-  group = `Region`, 
-  colour = `Region`, 
-  text = paste(
-    Region, "|", Year, 
-    "<br>Population:", format(Population, big.mark = ","), 
+```{r custom palette}
+# Palette made using ONS guidelines
+# Reverse order used: allows better differentiation of overlapping lines
+palette <- c(
+"East Midlands" = "#22d0b6", #"Mint green"
+"East of England" = "#746cb1", #Lavender purple"    
+"London" = "#f66068", #"Coral pink"
+"North East" = "#871a5b", #"Beetroot purple"
+"North West" = "#a8bd3a", #"Spring green"    
+"South East" = "#118c7b", #"Emerald green"
+"South West" = "#003c57", #"Night blue"
+"West Midlands" = "#27a0cc", #"Sky blue"
+"Yorkshire and The Humber" = "#206095") #"Ocean blue"
+```
+
+
+```{r final plot static, warning=FALSE}
+# Plot it all: initially plotting as a static ggplot
+plot_final_static <- ggplot(data_final, aes(
+  x = Year, y = Homes_By_Pop, group = `Region`, colour = `Region`, 
+  text = paste( #Custom hover text for interactivity and html formatting added below
+    "<b><i>", Region, "</i></b>", "-", "<b><i>", Year, "</i></b>", 
+    "<br>Population:", format(Population, big.mark = ","),#bigmark for chunking large numbers and separating by commas
     "<br>Completed Builds:", format(New_Homes, big.mark = ","), 
-    "<br><b>Homes completed per 1000 people:</b>", round(Homes_By_Pop, 2)))) +
-  geom_line() +
+    "<br><b>Homes completed per 1000 people:</b>", round(Homes_By_Pop, 2)#2dp
+  ))) +
+  geom_line(size = 1) +
   geom_point(size = 2) +
-  labs(title = "New Homes Completed to Population by English Region, 2011-2023", 
+  labs(title = "New Homes Completed per 1000 people by English Region, 2011-2023",
        x = "Year",
-       y = "Homes per 1000 people",
-       caption = "Data sourced from ONS and gov.uk"
-       ) +
+       y = "New Homes per 1000 people") +
   scale_x_continuous(
     breaks = seq(2011, 2023)) +
   scale_y_continuous(
-    breaks = seq(1, 5.5, by = 0.25),
-      limits = c(1, 5.5)) +
-  theme(
-    title = element_text(family = "Arial", face = "bold", size = 14),
-    axis.title.x = element_text(family = "Arial", face = "italic", size = 12),
-    axis.title.y = element_text(family = "Arial", face = "italic", size = 12),
-    axis.text = element_text(family = "Arial", size = 10),
-    legend.title = element_text(family = "Arial", face = "bold", size = 12),
-    legend.text = element_text(family = "Arial", size = 10),
-    panel.background = element_rect(fill = "white", color = NA), # White panel background
-    plot.background = element_rect(fill = "white", color = NA), # White plot background
-    axis.ticks = element_line(color = "black")) # Grey ticks
-
-# Convert ggplot to plotly for interactivity & allow custom hover text to show
-plot_final_int <- ggplotly(plot_final, tooltip = "text")
-
-# Legend filters
-plot_final_int <- plot_final_int %>% layout(
-  autosize = TRUE,  # Makes the plot responsive
-    width = 1000,
-    height = 500,
-  legend = list(
-    x = 1,  # Position the legend to the right of the plot
-    y = 0.5, # Vertically center the legend
-    xanchor = 'left', # Align the left side of the legend with the x position
-    yanchor = 'middle', # Align the middle of the legend with the y position
-    orientation = 'v'  # Vertical arrangement of legend items
-    )
-  )
-
-# Show the interactive plot
-plot_final_int
-
+    breaks = seq(1, 5.5, by = 0.5), #Every .5 is shown on the Y axis
+    #Starts at 1 and ends at 5.5: before the smallest value and beyond largest
+    limits = c(1, 5.5)) +
+  scale_color_manual(values = palette) +
+ theme(
+   panel.grid.major.y = element_line(color = "gray", size = 0.5),
+    title = element_text(face = "bold", size = 14),
+    axis.title.x = element_text(face = "italic", size = 12),
+    axis.title.y = element_text(face = "italic", size = 12),
+    axis.text = element_text(size = 10),
+    #White panel and plot background coded below
+    panel.background = element_rect(fill = "white"),
+    plot.background = element_rect(fill = "white"),
+    axis.ticks = element_line(color = "black")#Black ticks
+        )
+# Viewing the static, non interactive plot...
+plot_final_static
 ```
 
 
-```{r save final plot}
+```{r final plot interactive}
+# Making static plot interactive for the assessed plot
+#Tooltip settings ensure my custom text is added
+plot_final <- ggplotly(plot_final_static, tooltip = "text", 
+                       width = 1050, height = 500)
 
-#save final to plots file - animated
-htmlwidgets::saveWidget(plot_final_int, "plots/nhomesper1000_interac.html")
+#Add title and subtitle with HTML formatting to plotly layout
+plot_final <- plot_final %>% layout(
+  #Suggested font by gov.uk fonts, also in ONS font family
+  font = list(family = "Helvetica"), 
+  title = list(
+    text = "<b>New Homes Completed per 1000 people by English Region, 2011-2023</b><br><sub><i>Estimated figures based on data derived from gov.uk & the Office for National Statistics</i></sub>", 
+    x = 0.5,  #Centre-align title and subtitle
+    xanchor = 'center',
+    yanchor = 'top',
+    y = 0.95), #to avoid title being too close to the top chunk
+  #Adding crosshairs for x and y axes: easier to pinpoint data of interest
+  #Will present when interacting
+  xaxis = list(
+    showspikes = TRUE, 
+    spikesnap = "cursor", #based on cursor location: follows your movement
+    spikemode = "across", 
+    spikedash = "dash",
+    spikethickness = 1.5, 
+    spikecolor = "gray"
+  ),
+  yaxis = list(
+    showspikes = TRUE, 
+    spikesnap = "cursor", 
+    spikemode = "across", 
+    spikedash = "dash",
+    spikethickness = 1.5, 
+    spikecolor = "gray"
+  )
+)
 
-#save the static version also
-ggsave(plot = plot_final, "plots/nhomesper1000_static.png")
+```
 
+# Final Assessed Plot
+
+This is the final interactive plot.
+
+```{r final plot assessed}
+plot_final
+```
+
+```{r save final plots, include=FALSE}
+# Save final to /plots file - interactive
+htmlwidgets::saveWidget(plot_final, "plots/nhomesper1000.html")
+
+# Save a static version for pdf assessment
+capture.output(
+  webshot2::webshot("plots/nhomesper1000.html", "plots/viz240189002.pdf", 
+                    vwidth = 1200,
+                    vheight = 800,
+                    zoom = 2 #higher resolution
+  ))
 ```
 
 # Conclusions
 
-My initial thoughts: I was quite surprised to see how few homes were being built - I'd expected more of a noticeable increase as years and populations increased. There is the obvious dip in 2020 and lag to 2021 due to halting construction activity, and it seems we're still in a sort of housing slog.
+I was quite surprised to see how few homes were being built relative to regional populations; I'd expected more of a noticeable increase as years and populations increased. There is the obvious dip due to the pandemic in 2019-2020 due to halting construction activity, and it looks like we're still trying to gain that momentum back in providing new homes.
+
+I found Yorkshire's 2023 increase relative to 2022 interesting, when all other regions drop. This I'm supposing is due to the drive in new housing alongside a moderate increase to population.
 
 ## Limitations & Future ideas
 
-Although my project offers an interesting insight into new housing supply differences across English regions, it of course overlooks the contextual and political factors involved in housing supply. Economic conditions (e.g., unemployment, income levels), government policies (e.g., housing subsidies, planning permissions/ regulations) and details regarding types of housing or population density are not considered. Future projects may wish to investigate adjusting to these factors for a more nuanced insight.
+Although my project offers an interesting initial insight into new housing supply differences across English regions, it of course overlooks the contextual and political factors fundamental to housing supply. Economic conditions (e.g., unemployment, income levels), government policies (e.g., housing subsidies, planning permissions/ regulations) and details regarding types of housing or population density, are not considered. Future projects may wish to investigate adjusting to these factors for a more nuanced insight.
 
-My initial idea for this project was to use data on affordable units of housing available regionally and find proportions of net housing that are affordable, to see where in England there are the most affordable options (both ownership and rent) for housing. This fell short when I realised the affordable housing data is only available as a gross figure (i.e. not taking into account any losses of affordable housing), therefore any data presented would be misleading. This would be a really interesting future idea given the net data is published. There is some "Official Statistics in Development" data only on affordable housing for rent, if interested (see references).
+Another limitation is that the data sets don't match by point in the year, with Net Additional Dwellings (new homes) data representing the financial year (i.e. 2011-2012 being April 2011 to March 2012) and population data being on mid-year estimates. This means the data won't represent the years noted as accurately as I'd wanted, however end-of-calendar year data wasn't available for either data set.
+
+My initial idea for this project was to use data on affordable units of housing available regionally and find proportions of net housing that are affordable, to see where in England there are the most affordable options (both ownership and rent) for housing. This fell short when I realised the affordable housing data is only available as a gross figure (i.e. not taking into account any losses of affordable housing), therefore any data presented would be misleading. This would be an interesting future idea given the net data is published. There is some "Official Statistics in Development" data only on affordable housing for rent, if interested (see references).
+
+## Reflection
+
+I'm quite proud of my plot! It is a relatively simple plot but I learned a lot, and felt a sense of accomplishment when my ideas worked out. I really enjoyed adding in the small details with html and seeing it all come together.
+
+As a personal project and to build on my interests in interactive plots, I'd like to develop a Shiny dashboard relating to housing, specifically into affordability across England. It's all good research into the question: will I ever own my own house?
 
 # References
 
-<b>Net Additional Dwellings data:</b> gov.uk | Table 118: annual net additional dwellings and components, England and the regions (ODS, 54KB) -<br> <a href="https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables"target="_blank">https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables</a> (Updated: 28 November 2024)
+Net Additional Dwellings data: gov.uk | "Table 118: annual net additional dwellings and components, England and the regions" (ODS,54KB)   
+> https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables
 
-<i>Involvement from:
-Ministry of Housing, Communities and Local Government, 
-Ministry of Housing, Communities & Local Government (2018 to 2021),
-Department for Levelling Up, Housing and Communities</i>
+gov.uk collection on net dwelling supply & confirmation of this being financial year data: 
+> https://www.gov.uk/government/collections/net-supply-of-housing
 
-<b>Population estimates data:</b> ONS | Mid-2023: 2023 local authority boundaries edition of this dataset edition of this dataset (xlsx, 813.1KB) -<br> <a href="https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales"target="_blank">https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales</a> (Released: 15 July 2024)
+Population estimates data: ONS | "Mid-2023: 2023 local authority boundaries edition of this dataset edition of this dataset" (xlsx, 813.1KB) 
+> https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales
 
-<b>Unused data:</b> Links for anyone interested in affordable data sets mentioned:<br> <a href="https://www.gov.uk/government/statistical-data-sets/live-tables-on-affordable-housing-supply"target="_blank">https://www.gov.uk/government/statistical-data-sets/live-tables-on-affordable-housing-supply</a>
-<br><a href="https://assets.publishing.service.gov.uk/media/65c0b5dec43191000d1a451f/Net_Affordable_Housing_for_Rent.ods/preview"target="_blank">https://assets.publishing.service.gov.uk/media/65c0b5dec43191000d1a451f/Net_Affordable_Housing_for_Rent.ods/preview</a>
+Colour palette hex codes & guidance from ONS: 
+> https://service-manual.ons.gov.uk/data-visualisation/colours/using-colours-in-charts#standard-category-colour-palette
+
+Unused data - Links for anyone interested in affordable data sets mentioned:
+> https://www.gov.uk/government/statistical-data-sets/live-tables-on-affordable-housing-supply
+> https://assets.publishing.service.gov.uk/media/65c0b5dec43191000d1a451f/Net_Affordable_Housing_for_Rent.ods/preview

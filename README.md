@@ -19,7 +19,7 @@ index.Rmd: markdown file for the project
 
 index.html: knitted html version of the markdown file
 
-index_240189002.pdf: knitted pdf version of the markdown file
+index.pdf: knitted pdf version of the markdown file
 
 /renv: contains project's private library where all required packages are installed
 

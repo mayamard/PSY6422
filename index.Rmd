@@ -364,7 +364,6 @@ plot_final_static
 #Tooltip settings ensure my custom text is added
 plot_final <- ggplotly(plot_final_static, tooltip = "text", 
                        width = 1050, height = 500)
-
 #Add title and subtitle with HTML formatting to plotly layout
 plot_final <- plot_final %>% layout(
   #Suggested font by gov.uk fonts, also in ONS font family
@@ -411,9 +410,8 @@ htmlwidgets::saveWidget(plot_final, "plots/nhomesper1000.html")
 
 # Save a static version for pdf assessment
 capture.output(
-  webshot2::webshot("plots/nhomesper1000.html", "plots/viz240189002.pdf", 
-                    vwidth = 1200,
-                    vheight = 800,
+  webshot2::webshot("plots/nhomesper1000.html", "plots/viz240189002.png", 
+                    vwidth = 1050, vheight = 600,
                     zoom = 2 #higher resolution
   ))
 ```
@@ -432,7 +430,7 @@ My initial idea for this project was to use data on affordable units of housing 
 
 ## Reflection
 
-I'm quite proud of my plot! It is a relatively simple plot but I learned a lot, and felt a sense of accomplishment when my ideas worked out. I really enjoyed adding in the small details with html too, then seeing it all come together. I think the packages and approach chosen make sense for the question I wanted to look into, but as a personal project it would be interesting to build a Shiny dashboard into housing affordability and encompass more datasets around this topic.
+I'm quite proud of my plot! It is a relatively simple plot but I learned a lot, and felt a sense of accomplishment when my ideas worked out. I really enjoyed adding in the small details with html too, then seeing it all come together. I think the packages and approach chosen make sense for the question I wanted to look into, but as a personal project it would be interesting to build a Shiny dashboard into housing affordability and include more datasets around this topic.
 
 # References
 

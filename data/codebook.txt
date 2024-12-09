@@ -2,14 +2,176 @@ Codebook
 
 Data sources: 
 
-Net Additional Dwellings data = https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables
+Net Additional Dwellings data
+https://www.gov.uk/government/statistical-data-sets/live-tables-on-net-supply-of-housing#live-tables
 > Table 118: annual net additional dwellings and components, England and the regions (ODS, 54KB | Updated: 28 November 2024)
-> Sheet used: LT118_(unrounded). Unrounded figures used in this project for more accurate scaling when creating the "per 1000 people" figure
-> Background: The housing supply: net additional dwellings statistics, also known as ‘net additions’, measure the absolute change in stock between one year and the next, including losses and gains from new builds, conversions, changes of use (for example a residential house to an office) and demolitions.
+> Sheet used: sheet 5 of 5. LT118_(unrounded). Unrounded figures used in this project for more accurate scaling when creating the "per 1000 people" figure
+> Background: The housing supply: net additional dwellings statistics, also known as ‘net additions’, measure the absolute change in stock between one year and the next, including losses and gains from new builds, conversions, changes of use (for example a residential house to an office) and demolitions. For the purposes of the project, "new homes" was used to refer to these figures.
 > Data sources: The sources of the net additions data are the Housing Flows Reconciliation (HFR), the Greater London Authority and Regional Assembly joint returns. From 2000-01 to 2003-04, all local authorities submitted data to CLG through the Housing Flows Reconcilation (HFR) form. Between 2004-05 and 2008-09 CLG worked jointly with Regional Planning bodies in the south and midlands on joint data returns in an attempt to ensure consistency between the net housing supply figures reported in regional Annual Monitoring Reports (AMRs) and those published by central government.  Following the abolition of the Regional Planning Bodies in 2010, Local authorities in all regions except London have returned to submitting data via the HFR from 2009-10.
 
-Population estimates data = https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales
+> Key document notes:
+
+Sheet 1: Contents
+
+Net Additional Dwellings, Table 118: Annual net additional dwellings and components, England and the regions, 2000-01 to 2023-24: Contents	
+This worksheet contains one table.	
+Worksheet name	Worksheet contents
+Cover sheet	Sheet containing background information for the tables.
+Notes	Sheet containing notes included in the tables.
+LT118 (rounded)	Annual net additional dwellings and components, England and the regions, 2000-01 to 2023-24, rounded
+LT118 (unrounded)	Annual net additional dwellings and components, England and the regions, 2000-01 to 2023-24, unrounded
+
+Sheet 2: Cover
+
+Cover sheet																									
+Annual net additional dwellings and components, England and the regions, 2000-01 to 2023-24																									
+Back to contents																									
+"Date of publication: November 2024
+Next update: November 2025"																									
+Background																									
+The housing supply: net additional dwellings statistics, also known as ‘net additions’, measure the absolute change in stock between one year and the next, including losses and gains from new builds, conversions, changes of use (for example a residential house to an office) and demolitions. Table 118 gives the component breakdown at England and regional level in rounded (to the nearest 10) and unrounded tables.																									
+Sources and data collection																									
+The sources of the net additions data are the Housing Flows Reconciliation (HFR), the Greater London Authority and Regional Assembly joint returns. From 2000-01 to 2003-04, all local authorities submitted data to CLG through the Housing Flows Reconcilation (HFR) form. Between 2004-05 and 2008-09 CLG worked jointly with Regional Planning bodies in the south and midlands on joint data returns in an attempt to ensure consistency between the net housing supply figures reported in regional Annual Monitoring Reports (AMRs) and those published by central government.  Following the abolition of the Regional Planning Bodies in 2010, Local authorities in all regions except London have returned to submitting data via the HFR from 2009-10. Data for London are supplied by the GLA. More detail can be found in the 'data collection' section in our technical notes for the release linked below:																									
+Technical notes																									
+Revisions																									
+Census adjustments																									
+These statistics are compared against the census on its release every 10 years to ensure that the sum of net additions over that period matches the difference between the latest census dwelling count and the previous one. The net additions figures are then adjusted, with any difference spread evenly across the 10 years since the previous census. The dwelling counts from the 2011 Census have been used to revise the net supply estimates from 2001-02 to 2010-11, and the dwelling counts from the 2021 Census have been used to revise the net supply estimates from 2011-12 to 2020-21. More detail can be found in the 'scheduled revisions' section of our technical notes for the release linked below:																									
+Scheduled revisions																									
+Scheduled revisions																									
+Local authorities are able to revise the data they supply for these statistics after the original deadline for submission. In collecting the data for the 2019-20 publication, we allowed local authorities to revise data for the previous two years’ published figures. In the statistical releases following, the revisions period covers the previous years’ figures only. More detail can be found in the 'scheduled revisions' section of our technical notes for the release linked below:																									
+Scheduled revisions																									
+Response rate and imputation																									
+The 2023-24 data in this table is derived from valid HFR 2023-24 returns submitted by 295 of 296 local authorities in England. Imputation is used for any authorities that do not supply data through the HFR form. This year, data was imputed for Ribble Valley. More detail can be found in the 'data quality' section in our technical notes for the release linked below:																									
+Data quality																									
+Contact details																									
+Telephone: 0303 44 41864																									
+E-Mail: housing.statistics@levellingup.gov.uk
+
+Sheet 3: Notes
+
+Notes		
+This worksheet contains one table.		
+Back to contents		
+Note	Note explanation	Note location
+[p]	The 2023-24 figures are provisional and subject to scheduled revisions and revisions pending the release of future census dwelling stock data. 	LT118 (rounded) and LT118 (unrounded)
+[r]	The net supply estimates for 2022-23 have been revised. 	LT118 (rounded) and LT118 (unrounded)
+[x]	Data unavailable at time of publication 	LT118 (rounded) and LT118 (unrounded)
+[z]	Data not applicable.	LT118 (rounded) and LT118 (unrounded)
+[note 1]	New build completions plus Net conversions plus Net change of use plus Net other gains less Demolitions plus Adjustment to Census gives Net additional dwellings	LT118 (rounded) and LT118 (unrounded)
+[note 2]	The breakdown of net housing supply figures in 2006-07 and 2007-08 have been estimated for some regions submitting a ‘joint return’.	LT118 (rounded) and LT118 (unrounded)
+[note 3]	New build figures from the net supply of housing data may not correspond to new build data from the quarterly housebuilding series, data collected for the net supply of housing is over a longer period and may pick up some elements missing from the quarterly P2 collections.	LT118 (rounded) and LT118 (unrounded)
+[note 4]	Demolitions are subtracted from the net additions total.	LT118 (rounded) and LT118 (unrounded)
+[note 5]	The 'Net Supply of Housing' collection started in 2006-07, hence components of net additional dwellings are not available for previous years. 	LT118 (rounded) and LT118 (unrounded)
+[note 6]	Data for earlier years is less reliable, hence there is a small residual between the sum of components and totals.	LT118 (rounded) and LT118 (unrounded)
+
+Sheet 4: LT118_(rounded)
+Sheet 5: TT118_(unrounded)
+
+Population estimates data
+https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/estimatesofthepopulationforenglandandwales
 > Mid-2023: 2023 local authority boundaries edition of this dataset edition of this dataset (xlsx, 813.1KB | Released: 15 July 2024)
-> Sheet used: MYE3: Components of population change for local authorities in England and Wales, mid-2023
+> Sheet used: sheet 11 of 13. MYE4 - Population estimates: Summary for England and Wales, mid-2011 to mid-2023
 > Background: Data used was based on mid-year estimates (i.e. mid-2022 population estimate was used to represent 2022 data).
 > Data supplier: Population Estimates Unit, Population Statistics Division, Office for National Statistics
+
+> Key document notes:
+
+Sheet 1: Overview
+
+Mid-Year Population Estimates, England and Wales, June 2023
+This spreadsheet contains a selection of the data tables published alongside the Office for National Statistics' Mid-Year Population Estimates June 2023.
+Mid-Year Population Estimates, England and Wales, June 2023
+"
+Publication dates"
+The data tables in this spreadsheet were originally published at 9.30am 15 July 2024.
+The next publication is scheduled for summer 2025.
+"
+Dataset identifier codes"
+The country and local authority codes are 9 digits long and are used as geography identifiers.
+"
+Comparing mid-year population estimates changes"
+When comparing mid-year population datasets please be aware that while they are broadly comparable, different data sources and methods are used to create the estimates for England and Wales, Scotland, and for Northern Ireland. Differences can also occur between years. Please see the Quality and Methodology Information (QMI) report linked below for more information.
+"
+Historic publication dates for mid-year population estimates statistics"
+The annual mid-year population estimates statistics roll forward the population statistics produced from decennial Censuses. The series of current population estimates is available from the tables page where this file is published.
+"
+More mid-year population estimates"
+Population estimates tables page
+Population estimates bulletins accompanying these tables
+Quality and Methodology Information (QMI) report 
+"
+Contact details "
+pop.info@ons.gov.uk
+Telephone: +44 (0)1329 444661
+Further advice on the appropriate use of these data can be obtained by emailing pop.info@ons.gov.uk or phoning +44 (0)1329 444661 and asking to speak to a statistician.
+"
+Data supplier:"
+Population Estimates Unit
+Population Statistics Division
+Office for National Statistics
+Segensworth Road
+FAREHAM
+PO15 5RR
+email: pop.info@ons.gov.uk
+tel: +44 (0)1329 444661
+Release number: MYE23
+Date published: 15 July 2024
+
+Sheet 2: Contents
+
+Table of contents 	
+Worksheet number/name	Worksheet title
+Cover sheet	Cover sheet
+Notes	Notes
+Geography guide	Geography guide
+Related publications	Provides links to further population statistics and related publications 
+MYE1	Population estimates: Summary for England and Wales, mid-2023
+MYE2 - Persons	Persons by single year of age and sex for local authorities in England and Wales, mid-2023
+MYE2 - Females	Females by single year of age and sex for local authorities in England and Wales, mid-2023
+MYE2 - Males	Males by single year of age and sex for local authorities in England and Wales, mid-2023
+MYE3	Components of population change for local authorities in England and Wales, mid-2023
+MYE4	Population estimates: Summary for England and Wales, mid-2011 to mid-2023
+MYE5	Population density for local authorities in England and Wales, mid-2011 to mid-2023
+MYE6	Median age of population for local authorities in England and Wales, mid-2011 to mid-2023
+
+Sheet 3: Notes
+
+1	Rounding: estimates are presented unrounded. Unrounded estimates are published to enable and encourage further calculations and analysis. However, the estimates should not be taken to be accurate to the level of detail provided. More information on the accuracy of the estimates is available in the Quality and Methodology document (QMI).
+2	Small counts: the estimates are produced using a variety of data sources and statistical models, including some statistical disclosure control methods, and small estimates should not be taken to refer to particular individuals.
+3	Usual residence definitions: the estimated resident population of an area includes all those people who usually live there, regardless of nationality. Arriving international migrants are included in the usually resident population if they remain in the UK for at least a year. Emigrants are excluded if they remain outside the UK for at least a year. This is consistent with the United Nations definition of a long-term migrant. Armed forces stationed outside of the UK are excluded. Students are taken to be usually resident at their term time address.
+4	Geography: where subnational level data are presented, the population estimates reflect boundaries in place as of April 2023. The term "local authority district" refers to geographical areas in the tables which are below regions and which are not counties or metropolitan counties. In England these include unitary authorities, metropolitan districts, non-metropolitan districts and London boroughs. In Wales they are known as unitary authorities, in Scotland as council districts and in Northern Ireland as local government districts. Further information can be found in the 'geography guide' worksheet.
+5	Use of 2023 Local authorities: this spreadsheet uses boundaries for England and Wales that existed at publication, which includes the changes made in April 2023.
+6	Revision to mid-2022 population estimates: Population estimates for mid-2022 have been revised to account for improvements to the disaggregation of international migration from the UK level down to local authority by age and sex.
+7	Geographical coverage: these statistics cover England and Wales only. Estimates for the whole of the UK, covering mid-2023, will be published later in the year.
+Issues affecting table MYE3	Note text
+8	Internal migration: residential moves between different local authority districts in the UK, including those that cross the boundaries between the four UK nations: England, Wales, Scotland and Northern Ireland. Internal migration figures for Northern Ireland include flows to and from the Isle of Man. This means that net internal migration at UK level will not sum to zero.
+9	Internal migration for counties, regions, England and Wales: we are only able to provide internal migration netflows for counties, regions and England and Wales for mid-2023; inflows and outflows are unavailable. This reflects a different supply of internal migration estimates for mid-2023 which is not as detailed our regular method. Further details can be found in our methodology guide. 
+10	Other changes: changes to the size of armed forces stationed in the UK and other special population adjustments. At geographies higher than local authority, adjustments due to rounding may also be included. This means that other changes at local authority level may not sum to other changes at national level.
+Issues affecting table MYE5	Note text 
+11	Rounding: the population density estimates and area measurements are displayed rounded to the nearest integer though calculations have been performed on the unrounded data.
+12	Definitions: Standard Area Measurements (SAM) data used reflect the position as at 31 December 2021 for England, Wales and Scotland. Land area measurements, excluding inland water, have been used in compiling these population density figures. Information on this is available from the ONS geography portal. For Northern Ireland SAM data consistent with that used in their 2021 census and mid-year estimate reporting has been used.
+13	Changes: the area measurements are a definitive set derived from boundaries maintained by Ordnance Survey and Ordnance Survey of Northern Ireland. The current measurements may differ from those published previously in tables, publications, or other statistical outputs, even allowing for boundary changes or changes to the physical structure of the land because of improvements to the source of the data.
+
+Sheet 4: Geography guide
+
+Geography guide	
+Tables MYE2-6 contain estimates for England and Wales, regions and counties, and all types of local authority area.	
+Filter and select the following types of areas on a table's 'geography' column in order to get a certain type of local authority:	
+Lower tier-only authorities	Local authority districts, metropolitan districts, and non-metropolitan districts
+Upper tier-only authorities	Counties and metropolitan counties
+Upper and lower tier authorities	Council areas, local government districts, London boroughs, and unitary authority districts
+For more information see links in the cells below:	
+ONS Geoportal	
+ONS administrative geography pages	
+
+Sheet 5: Publications
+Sheet 6: MYE1	Population estimates: Summary for England and Wales, mid-2023
+Sheet 7: MYE2 - Persons	Persons by single year of age and sex for local authorities in England and Wales, mid-2023
+Sheet 8: MYE2 - Females	Females by single year of age and sex for local authorities in England and Wales, mid-2023
+Sheet 9: MYE2 - Males	Males by single year of age and sex for local authorities in England and Wales, mid-2023
+Sheet 10: MYE3 - Components of population change for local authorities in England and Wales, mid-2023
+Sheet 11: MYE4 - Population estimates: Summary for England and Wales, mid-2011 to mid-2023
+Sheet 12: MYE5 - Population density for local authorities in England and Wales, mid-2011 to mid-2023
+Sheet 13: MYE6 - Median age of population for local authorities in England and Wales, mid-2011 to mid-2023
+
+Following filtration for required data, no missing values were found.

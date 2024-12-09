@@ -24,32 +24,26 @@ Given that bigger regions would have higher new housing figures, I found data on
 I decided on a line plot with "Year" on the X axis, and "New Homes completed per 1000", with 9 lines to represent each of the 9 English regions, displaying the trends over time. I also wanted an interactive element where users could compare, isolate, and zoom into areas and years of interest.
 
 # Data Preparation
-## Loading packages
+## Setting up & loading packages
 
-The code below is the setup with the required packages and libraries.
+The code below is the setup with the required libraries. Renv was used for package management, with package versions used listed in /renv.lock in the repository.
 
-```{r library, message = FALSE}
+```{r setup & library, message = FALSE, warning = FALSE, quiet = TRUE}
 
-# Version control: using "renv" package to ensure the packages used in this project are preserved
-# Package versions used are listed in /renv.lock file
-
+# Package version management: using "renv" package to ensure the packages used in this project are preserved if/when cloning
 if(!require('renv')) install.packages('renv')
 library(renv)
-
-# Restore the environment from renv.lock file
+# Restores the environment from renv.lock file
 renv::restore()
-
+# My library:
 # here determines the project root directory automatically and constructs file paths relative to that root, not the current working directory
 library(here)
-
 # readODS package needed to read the Net Additional Dwellings .ods dataset
 library(readODS)
 # readxl package needed to read the Regional Population .xlsx dataset
 library(readxl)
-
 # Library required for data wrangling: mainly using tidyr and dplyr from tidyverse
 library(tidyverse)
-
 # ggplot2 allows for plotting with ggplot
 library(ggplot2)
 # plotly allows interactivity from ggplot plots. I like the use of plot zooming and custom hover text which is why plotly was used
@@ -57,83 +51,82 @@ library(plotly)
 
 ```
 
-## Importing
+## Importing data
+We will be merging these data sets so we get a figure of the number of new housing units relative to that region's population for a given year, by 1000 people, to allow regional comparisons. This means columns that need to be merged and therefore need to match by names are Region and Year.
 
-```{r importing}
+I had a look at the data being used in Excel and as a tibble using View() after importing, so already have an idea of what needs to be edited.
 
-# here constructing file paths relative to the project root for your directory
+```{r importing, message = FALSE, warning = FALSE}
+
+# here constructing file paths relative to the project root
 # If downloading the data from sources, please ensure relevant data folder and file names below match
-file_path_dwell <- here("data", "raw_netadditionaldwellings.ods")
+file_path_homes <- here("data", "raw_netadditionaldwellings.ods")
 file_path_pop <- here("data", "raw_population.xlsx")
 
 # Read data from the files
-data_dwell <- read_ods(file_path_dwell, sheet = 5)
-data_pop <- read_xlsx(file_path_pop, sheet = 11)
+data_homes <- read_ods(file_path_homes, sheet = 5) #unrounded sheet for more accurate figures
+data_pop <- read_xlsx(file_path_pop, sheet = 11) #mid-year population estimates 2011-2023
 
-# See new imported data sets are what we need
-# Best to View in R
-head(data_dwell)
-head(data_pop)
-# Will be merging these data sets so we get a figure of the number of new housing units relative to that region's population for a given year, by 1000 people to allow regional comparisons
+# See new imported data sets are correct and review what edits need to be made.
+# Best to View in R initially
 # Data needs to match by Year and Region, therefore need to ensure relevant wrangling is completed...
 
 ```
 
-## Wrangle: Net Additional Dwellings data
+## Wrangle (Part 1/3): Net Additional Dwellings data
 
-```{r wrangle net dwellings data}
+```{r wrangle net additional dwellings data}
 
-# We are looking at regions of England, from 2011 to 2023 as no pre-2011 population data was available unfortunately
-head(data_dwell)
-# Ideally you'd View(data_dwell) in R at this stage to open the actual frame
+# We are looking for regions of England, from 2011 to 2023 as no pre-2011 population data was available unfortunately
+# As mentioned, ideally you'd View(data_homes) in R at this stage
 # We need to remove blank columns and rows, remove the England column, rename Year column data to just numbers, remove pre-2011 data, and convert the regions to long
 
 #remove 1st 2 rows as they are irrelevant 
-data_dwell <- data_dwell[-1:-2, ]
+data_homes <- data_homes[-1:-2, ]
 
 #make first row the headings for columns, then delete first row
-colnames(data_dwell) <- data_dwell[1, ]
-data_dwell <- data_dwell[-1, ]
+colnames(data_homes) <- data_homes[1, ]
+data_homes <- data_homes[-1, ]
 
 # Check if that looks right
-head(data_dwell) 
+head(data_homes) 
 
 # Delete "England" column as we're just seeing regional differences
-data_dwell <- data_dwell %>%
+data_homes <- data_homes %>%
   select(-"England")
 
 # Filtering for only Net data
-data_dwell <- data_dwell %>% filter(
+data_homes <- data_homes %>% filter(
   str_starts(`Components of net housing supply`, "Net additions")
   )
 
 # Can now delete this "Components of net housing supply" column as have used filters
-data_dwell <- data_dwell %>%
+data_homes <- data_homes %>%
   select(-`Components of net housing supply`)
 
 # Rename Year as first 4 digits: cannot convert to numeric otherwise
-data_dwell$Year <- str_sub(data_dwell$Year, 1, 4)
+data_homes$Year <- str_sub(data_homes$Year, 1, 4)
 
 # Filter to remove pre-2011 data to match the data set with the population data we have
-data_dwell <- data_dwell %>%
+data_homes <- data_homes %>%
   filter(Year >= 2011)
 
 # Make long
-data_dwell <- pivot_longer(data_dwell, 
+data_homes <- pivot_longer(data_homes, 
              cols = -Year, #all columns except Year as it's already long
              names_to = "Region",
-             values_to = "Net_Additional_Dwellings")
+             values_to = "New_Homes")
 
 # Quick check whether we have missing data
-is.na(data_dwell)
+is.na(data_homes)
 #All values come back False, meaning no missing values
 
 # Convert to numeric to allow plotting
-data_dwell <- data_dwell %>%
-  mutate(across(c(Year, Net_Additional_Dwellings), as.numeric))
+data_homes <- data_homes %>%
+  mutate(across(c(Year, New_Homes), as.numeric))
 
 # How does it look?
-print(data_dwell)
+print(data_homes)
 # Looks good!
 
 ```
@@ -144,29 +137,29 @@ print(data_dwell)
 
 #Quick view of our data
 
-plot_dwell <- ggplot(data = data_dwell, mapping = aes(
-  x = Year, y = Net_Additional_Dwellings, 
+plot_homes <- ggplot(data = data_homes, mapping = aes(
+  x = Year, y = New_Homes, 
   group = Region, colour = Region)) + 
   geom_point() + 
   geom_line() +
-  labs(title = "Net Dwellings by Region, 2011-2023", 
+  labs(title = "New Homes added by Region, 2011-2023", 
          x = "Year", 
-         y = "Net Dwellings") +
+         y = "New Homes") +
     scale_x_continuous(breaks = seq(2011, 2023))
 
-print(plot_dwell)
-ggsave(plot = plot_dwell, "plots/plot_newhomes.png")
+print(plot_homes)
+ggsave(plot = plot_homes, "plots/plot_newhomes.png")
 
 
 ```
 
-## Wrangle: Population data
+## Wrangle (Part 2/3): Population data
 
 ```{r wrangle population data}
 
 #Check imported data
 head(data_pop)
-#1st column, and first 6 rows can go. will also need to rename Year headings to only numeric, and convert to long
+#1st column, and first 6 rows can go. Will also need to rename Year headings to only numeric, and convert to long
 
 #remove first 6 rows, no data
 data_pop <- data_pop %>% slice(-1:-6)
@@ -178,7 +171,7 @@ data_pop <- data_pop[ ,-1]
 colnames(data_pop) <- data_pop[1, ]
 data_pop <- data_pop[-1, ]
 
-#rename just 1st col to Region to match Dwellings data
+#rename just 1st col to Region to match New Homes data
 colnames(data_pop)[colnames(data_pop) == "Name"] <- "Region"
 
 #view only regional data
@@ -231,20 +224,20 @@ print(plot_pop)
 ggsave(plot = plot_pop, "plots/plot_population.png")
 ```
 
-## Wrangle: Merging datasets
+## Wrangle (Part 3/3): Merging datasets
 
-```{r wrangling both datasets and merging}
+```{r wrangling both datasets and merging, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
 
-#Will want to combine the datasets to form a new data frame so Region and Year remain as columns, and Net Dwellings and Population are new
+#Will want to combine the datasets to form a new data frame so Region and Year remain as columns, and New Homes and Population are new
 #Names of Regions and Years must be the same for all data to merge correctly, lets make sure the names are matching
 
 #Check if we have anything earlier than 2011
-any(data_dwell$Year < 2011)
+any(data_homes$Year < 2011)
 #False, great!
 any(data_pop$Year < 2011)
 #False, great!
 
-unique(data_dwell$Region)
+unique(data_homes$Region)
 unique(data_pop$Region)
 #Looks like there are some differences in Region names with East and Yorkshire... 
 #I prefer "East of England" and "Yorkshire and The Humber" as names from the Dwellings df, so will rename these in the Population df
@@ -258,7 +251,7 @@ data_pop <- data_pop %>%
 #We can now create a new data frame where new homes are adjusted by population for each region
 
 #merging with Region and Year labels remaining
-data_final <- merge(data_dwell, data_pop, by.x = c("Region", "Year"), by.y = c("Region", "Year"))
+data_final <- merge(data_homes, data_pop, by.x = c("Region", "Year"), by.y = c("Region", "Year"))
 
 #Check all 9 regions are here
 unique(data_final$Region)
@@ -275,12 +268,18 @@ print(data_final)
 
 #make new columns numeric for plotting
 data_final <- data_final %>%
-  mutate(across(c(Year, Net_Additional_Dwellings, Population), as.numeric))
+  mutate(across(c(Year, New_Homes, Population), as.numeric))
 
 # Calculate the Population/Houses*1000 ratio, create new column for figures
-data_final$Dwell_By_Pop <- ((data_final$`Net_Additional_Dwellings` / data_final$`Population`)*1000)
+data_final$Homes_By_Pop <- ((data_final$`New_Homes` / data_final$`Population`)*1000)
 
 #see the new column
+head(data_final)
+
+```
+
+```{r}
+
 head(data_final)
 
 ```
@@ -290,21 +289,23 @@ head(data_final)
 ```{r final plot}
 
 # Plot it all!
-plot_final_static <- ggplot(data_final, aes(
+plot_final <- ggplot(data_final, aes(
   x = Year, 
-  y = Dwell_By_Pop, 
+  y = Homes_By_Pop, 
   group = `Region`, 
   colour = `Region`, 
   text = paste(
     Region, "|", Year, 
     "<br>Population:", format(Population, big.mark = ","), 
-    "<br>Completed Builds:", format(Net_Additional_Dwellings, big.mark = ","), 
-    "<br><b>Homes completed per 1000 people:</b>", round(Dwell_By_Pop, 2)))) +
+    "<br>Completed Builds:", format(New_Homes, big.mark = ","), 
+    "<br><b>Homes completed per 1000 people:</b>", round(Homes_By_Pop, 2)))) +
   geom_line() +
   geom_point(size = 2) +
   labs(title = "New Homes Completed to Population by English Region, 2011-2023", 
        x = "Year",
-       y = "Homes per 1000 people") +
+       y = "Homes per 1000 people",
+       caption = "Data sourced from ONS and gov.uk"
+       ) +
   scale_x_continuous(
     breaks = seq(2011, 2023)) +
   scale_y_continuous(
@@ -317,30 +318,29 @@ plot_final_static <- ggplot(data_final, aes(
     axis.text = element_text(family = "Arial", size = 10),
     legend.title = element_text(family = "Arial", face = "bold", size = 12),
     legend.text = element_text(family = "Arial", size = 10),
-    panel.background = element_rect(fill = "transparent", color = NA),  # Transparent panel background
-    plot.background = element_rect(fill = "transparent", color = NA),  # Transparent plot background
-    axis.ticks = element_line(color = "grey"))                          # Grey ticks
-
-plot_final_static
+    panel.background = element_rect(fill = "white", color = NA), # White panel background
+    plot.background = element_rect(fill = "white", color = NA), # White plot background
+    axis.ticks = element_line(color = "black")) # Grey ticks
 
 # Convert ggplot to plotly for interactivity & allow custom hover text to show
-plot_final <- ggplotly(plot_final_static, tooltip = "text")
+plot_final_int <- ggplotly(plot_final, tooltip = "text")
 
-# Legend filters: I wanted the legend beneath rather than (default) beside the plot. Could then widen the plot for a better view of trends
-plot_final <- plot_final %>% layout(
-  width = 1000,  # Width in pixels
-  height = 600,   # Height in pixels
+# Legend filters
+plot_final_int <- plot_final_int %>% layout(
+  autosize = TRUE,  # Makes the plot responsive
+    width = 1000,
+    height = 500,
   legend = list(
-    x = 0.5, # Position legend outside the plot area (right)
-    y = -0.2, # Vertically center the legend
-    xanchor = 'center', # Align the left side of the legend with the x position
-    yanchor = 'top', # Align the middle of the legend with the y position
-    orientation = 'h' # Horizontal arrangement of legend
+    x = 1,  # Position the legend to the right of the plot
+    y = 0.5, # Vertically center the legend
+    xanchor = 'left', # Align the left side of the legend with the x position
+    yanchor = 'middle', # Align the middle of the legend with the y position
+    orientation = 'v'  # Vertical arrangement of legend items
+    )
   )
-)
 
 # Show the interactive plot
-plot_final
+plot_final_int
 
 ```
 
@@ -348,10 +348,10 @@ plot_final
 ```{r save final plot}
 
 #save final to plots file - animated
-htmlwidgets::saveWidget(plot_final, "plots/dwellper1000_interac.html")
+htmlwidgets::saveWidget(plot_final_int, "plots/nhomesper1000_interac.html")
 
 #save the static version also
-ggsave(plot = plot_final_static, "plots/dwellper1000_static.png")
+ggsave(plot = plot_final, "plots/nhomesper1000_static.png")
 
 ```
 
